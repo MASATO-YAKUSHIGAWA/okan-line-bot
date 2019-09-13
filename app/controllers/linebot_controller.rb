@@ -105,7 +105,7 @@ end
 
   def client
     @client ||= Line::Bot::Client.new { |config|
-      本番環境
+      # 本番環境
       config.channel_secret = ENV["LINE_CHANNEL_SECRET_ID"]
       config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
     }
