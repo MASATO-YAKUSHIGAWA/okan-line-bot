@@ -1,5 +1,5 @@
 desc "This task is called by the Heroku scheduler add-on"
-task :update_feed => :environment do
+task :update_feed => :environment do |line_id|
   require 'line/bot'  # gem 'line-bot-api'
   require 'open-uri'
   require 'kconv'
@@ -11,7 +11,7 @@ task :update_feed => :environment do
   }
 
   # 使用したxmlデータ（毎日朝6時更新）：以下URLを入力すれば見ることができます。
-  line_id = event['source']['userId'] #line_id
+  # line_id = event['source']['userId'] #line_id
   user = User.find_by(line_id: line_id) #linee_id取得
   user_location = AreaInfo.find(user) #userの観測値情報取得
   url  = "https://www.drk7.jp/weather/xml/#{user_location.prep_id}.xml"

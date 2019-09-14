@@ -13,24 +13,22 @@ class LinebotController < ApplicationController
     unless client.validate_signature(body, signature)
       head :bad_request
     end
-
     events = client.parse_events_from(body)
     events.each { |event|
+    line_id = event['source']['userId'] # line_id取得
 
     case event
-    when Line::Bot::Event::Follow
+    when Line::Bot::Event::Follow #フォローされた場合
       client.reply_message(event['replyToken'], first_message)
 
-    when Line::Bot::Event::Unfollow # LINEお友達解除された場合
-      line_id = event['source']['userId'] # お友達解除したユーザーのデータをユーザーテーブルから削除
+    when Line::Bot::Event::Unfollow # LINEお友達解除された場合、DBから削除する
       User.find_by(line_id: line_id).destroy
     
-    when Line::Bot::Event::Message
+    when Line::Bot::Event::Message #メッセージが送られてきた場合
       case event.type
       when Line::Bot::Event::MessageType::Location # 位置情報が入力された場合
         lat = event.message['latitude'] # 緯度
         long = event.message['longitude'] # 経度
-        line_id = event['source']['userId'] #line_id
         push = "ありがとう"
         area = AreaInfo.find_by_sql(["select * from area_infos order by abs(latitude - ?) + abs(longitude - ?) ASC limit 1 ", lat, long]) #現在地から一番近い観測地点を取得
         if User.find_by(line_id: line_id)
@@ -39,34 +37,32 @@ class LinebotController < ApplicationController
           User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
         end
       when Line::Bot::Event::MessageType::Text
-        # line_id = event['source']['userId'] #line_id
-        # user = User.find_by(line_id: line_id) #linee_id取得
-        # location_id = user.area_info_id
-        # user_location = AreaInfo.find(location_id) #userの観測値情報取得
-        # # binding.pry
-        input = event.message['text']
-        url  = "https://www.drk7.jp/weather/xml/27.xml"
-        xml  = open( url ).read.toutf8
-        doc = REXML::Document.new(xml)
-        xpath = "weatherforecast/pref/area[1]/"
+        if User.find_by(line_id: line_id) #linee_id取得
+          user = User.find_by(line_id: line_id)
+          user_location = AreaInfo.find(user.area_info_id) #userの観測値情報取得
+          input = event.message['text']
+          url  = "https://www.drk7.jp/weather/xml/#{user_location.prep_id}.xml"
+          xml  = open( url ).read.toutf8
+          doc = REXML::Document.new(xml)
+          xpath = "weatherforecast/pref/area[#{user_location.area_id}]/"
 
-        min_per = 30
-        case input
-          # 「明日」or「あした」というワードが含まれる場合
-        when /.*(明日|あした).*/
-          # info[2]：明日の天気
-          per06to12 = doc.elements[xpath + 'info[2]/rainfallchance/period[2]'].text
-          per12to18 = doc.elements[xpath + 'info[2]/rainfallchance/period[3]'].text
-          per18to24 = doc.elements[xpath + 'info[2]/rainfallchance/period[4]'].text
-          if per06to12.to_i >= min_per || per12to18.to_i >= min_per || per18to24.to_i >= min_per
-            push =
-              "明日の天気だよね。\n明日は雨が降りそうだよ(>_<)\n今のところ降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
-          else
-            push =
-              "明日の天気？\n明日は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+          min_per = 30
+          case input
+            # 「明日」or「あした」というワードが含まれる場合
+          when /.*(明日|あした).*/
+            # info[2]：明日の天気
+            per06to12 = doc.elements[xpath + 'info[2]/rainfallchance/period[2]'].text
+            per12to18 = doc.elements[xpath + 'info[2]/rainfallchance/period[3]'].text
+            per18to24 = doc.elements[xpath + 'info[2]/rainfallchance/period[4]'].text
+            if per06to12.to_i >= min_per || per12to18.to_i >= min_per || per18to24.to_i >= min_per
+              push =
+                "明日の天気だよね。\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降りそうだよ(>_<)\n今のところ降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+            else
+              push =
+                "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+            end
           end
         end
-
       end
   
       message = {
@@ -74,8 +70,6 @@ class LinebotController < ApplicationController
         "text": push
       }
       client.reply_message(event['replyToken'], message)
-
-
     end
   }
   head :ok
