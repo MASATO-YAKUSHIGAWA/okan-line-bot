@@ -63,9 +63,9 @@ task :update_feed => :environment do
       push =
        "#{word3}\n降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％"
     else
-      push = "こんにちは#{user_location.prep_name}"
+      push = "#{user_location.prep_name}はいい天気！"
     end
-    
+
     message = {
       type: 'text',
       text: push
