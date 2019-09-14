@@ -67,3 +67,4 @@ gem 'line-bot-api'
 
 gem 'pry-rails'
 gem 'pry-byebug'
+gem "haml-rails"

@@ -6,8 +6,8 @@ task :update_feed => :environment do
   require 'rexml/document'
 
   client ||= Line::Bot::Client.new { |config|
-    config.channel_secret = ENV["LINE_CHANNEL_SECRET_ID"]
-    config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
+    config.channel_secret = "f25a9c6c930126ad7d1f291e3771b4a8"
+    config.channel_token = "8BvTmnSr8fP37Hq3EEhaxtQLPpngKgv4tlK/Mpml90NsR9N4UjVx5Iudtg07AQ16NqTsuITHGmdXQ/PsaHqDiB1pHPA6ivNLOozl2MIdJqQzf3PbnV3C+5m+kVpTt2cx/YaYXAj9tRH2+GNgX6R9hgdB04t89/1O/w1cDnyilFU="
 }
   # 使用したxmlデータ（毎日朝6時更新）：以下URLを入力すれば見ることができます。
   # user = User.all

@@ -1,0 +1,11 @@
+.header
+  .header__inner
+    .header__inner__top
+      .header__inner__top__left
+        %h1
+          =link_to '/' do
+            =image_tag "mercari_logo_horizontal.png",alt:"メルカリ"
+      %form.header__inner__top__form
+        %input{type:"search",name:"keyword",placeholder:"何かお探しですか？"}
+        %i.header__inner__top__form__icon
+    .header__inner__list

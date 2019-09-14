@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_31_100342) do
+ActiveRecord::Schema.define(version: 2019_09_14_082436) do
 
   create_table "area_infos", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "prep_name"
@@ -23,6 +23,16 @@ ActiveRecord::Schema.define(version: 2019_08_31_100342) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "garbages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "wday"
+    t.string "nth"
+    t.string "type"
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_garbages_on_user_id"
+  end
+
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "line_id", null: false
     t.bigint "area_info_id", null: false
@@ -31,5 +41,6 @@ ActiveRecord::Schema.define(version: 2019_08_31_100342) do
     t.index ["area_info_id"], name: "index_users_on_area_info_id"
   end
 
+  add_foreign_key "garbages", "users"
   add_foreign_key "users", "area_infos"
 end
