@@ -27,33 +27,6 @@ class LinebotController < ApplicationController
     
     when Line::Bot::Event::Message
       case event.type
-      when Line::Bot::Event::MessageType::Text
-        line_id = event['source']['userId'] #line_id
-        user = User.find_by(line_id: line_id) #linee_id取得
-        user_location = AreaInfo.find(user.area_info_id) #userの観測値情報取得
-        input = event.message['text']
-        url  = "https://www.drk7.jp/weather/xml/#{user_location.prep_id}.xml"
-        xml  = open( url ).read.toutf8
-        doc = REXML::Document.new(xml)
-        xpath = "weatherforecast/pref/area[#{user_location.area_id}]/"
-
-        min_per = 30
-        case input
-          # 「明日」or「あした」というワードが含まれる場合
-        when /.*(明日|あした).*/
-          # info[2]：明日の天気
-          per06to12 = doc.elements[xpath + 'info[2]/rainfallchance/period[2]'].text
-          per12to18 = doc.elements[xpath + 'info[2]/rainfallchance/period[3]'].text
-          per18to24 = doc.elements[xpath + 'info[2]/rainfallchance/period[4]'].text
-          if per06to12.to_i >= min_per || per12to18.to_i >= min_per || per18to24.to_i >= min_per
-            push =
-              "明日の#{user_location.prep_name}、#{user_location.area_name}の天気だよね。\n明日は雨が降りそうだよ(>_<)\n今のところ降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
-          else
-            push =
-              "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
-          end
-        end
-
       when Line::Bot::Event::MessageType::Location # 位置情報が入力された場合
         lat = event.message['latitude'] # 緯度
         long = event.message['longitude'] # 経度
@@ -65,6 +38,35 @@ class LinebotController < ApplicationController
         else
           User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
         end
+      when Line::Bot::Event::MessageType::Text
+        # line_id = event['source']['userId'] #line_id
+        # user = User.find_by(line_id: line_id) #linee_id取得
+        # location_id = user.area_info_id
+        # user_location = AreaInfo.find(location_id) #userの観測値情報取得
+        # # binding.pry
+        input = event.message['text']
+        url  = "https://www.drk7.jp/weather/xml/27.xml"
+        xml  = open( url ).read.toutf8
+        doc = REXML::Document.new(xml)
+        xpath = "weatherforecast/pref/area[1]/"
+
+        min_per = 30
+        case input
+          # 「明日」or「あした」というワードが含まれる場合
+        when /.*(明日|あした).*/
+          # info[2]：明日の天気
+          per06to12 = doc.elements[xpath + 'info[2]/rainfallchance/period[2]'].text
+          per12to18 = doc.elements[xpath + 'info[2]/rainfallchance/period[3]'].text
+          per18to24 = doc.elements[xpath + 'info[2]/rainfallchance/period[4]'].text
+          if per06to12.to_i >= min_per || per12to18.to_i >= min_per || per18to24.to_i >= min_per
+            push =
+              "明日の天気だよね。\n明日は雨が降りそうだよ(>_<)\n今のところ降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+          else
+            push =
+              "明日の天気？\n明日は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+          end
+        end
+
       end
   
       message = {
@@ -105,10 +107,14 @@ end
 
   def client
     @client ||= Line::Bot::Client.new { |config|
-      # 本番環境
-      config.channel_secret = ENV["LINE_CHANNEL_SECRET_ID"]
-      config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
+      # ローカル環境
+      config.channel_secret = "f25a9c6c930126ad7d1f291e3771b4a8"
+      config.channel_token = "8BvTmnSr8fP37Hq3EEhaxtQLPpngKgv4tlK/Mpml90NsR9N4UjVx5Iudtg07AQ16NqTsuITHGmdXQ/PsaHqDiB1pHPA6ivNLOozl2MIdJqQzf3PbnV3C+5m+kVpTt2cx/YaYXAj9tRH2+GNgX6R9hgdB04t89/1O/w1cDnyilFU="
     }
+      # 本番環境
+    #   config.channel_secret = ENV["LINE_CHANNEL_SECRET_ID"]
+    #   config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
+    # }
   end
 
 end

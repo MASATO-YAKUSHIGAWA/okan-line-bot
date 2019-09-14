@@ -13,7 +13,7 @@ task :update_feed => :environment do
   # 使用したxmlデータ（毎日朝6時更新）：以下URLを入力すれば見ることができます。
   line_id = event['source']['userId'] #line_id
   user = User.find_by(line_id: line_id) #linee_id取得
-  user_location = AreaInfo.find(user.area_info_id) #userの観測値情報取得
+  user_location = AreaInfo.find(user) #userの観測値情報取得
   url  = "https://www.drk7.jp/weather/xml/#{user_location.prep_id}.xml"
   # xmlデータをパース（利用しやすいように整形）
   xml  = open( url ).read.toutf8
