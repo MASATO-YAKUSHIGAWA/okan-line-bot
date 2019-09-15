@@ -121,7 +121,9 @@ end
   end
 
   def garbage_params
-    params.require(:garbage).permit(:wday, :nth, :garbage_type).merge(user_id: 13)
+    user = User.find_by(line_id: params[:garbage][:line_id])
+    user_id = user.id
+    params.require(:garbage).permit(:wday, :nth, :garbage_type).merge(user_id: user_id)
   end
 
 end

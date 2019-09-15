@@ -1,21 +1,24 @@
 %title  ゴミapp
 .garbage_form
-  = form_with model:@garbage, class: "garbage-content__form", url: garbage_create_path, local: true do |f|
+  = form_with model:@garbage, class: "garbage-content__form",id:"garbage_content__form", url: garbage_create_path, local: true do |f|
     .garbage_form__header
       %h2 ゴミ
+    .garbage_form__liff#liff
     .garbage_form__content
       .garbage_form__content__box
         .garbage_form__content__box__title
           %h3 曜日
         .garbage_form__content__box__form
-          = f.select :wday, [["月曜日",1],["火曜日",2],["水曜日",3],["木曜日",4],["金曜日",5],["土曜日",6],["日曜日",7]],{}, class: "wday__selecter" , id: "wday__selecter"
+          = f.select :wday, [["---",0],["月曜日",1],["火曜日",2],["水曜日",3],["木曜日",4],["金曜日",5],["土曜日",6],["日曜日",7]],{}, class: "wday__selecter" , id: "wday_selecter"
         .garbage_form__content__box__title
           %h3 週
         .garbage_form__content__box__form
-          = f.select :nth, [["第一",1],["第二",2],["第三",3],["第四",4]],{}, class: "nth__selecter" , id: "nth__selecter"
+          = f.select :nth, [["---",0],["第一",1],["第二",2],["第三",3],["第四",4],["毎週",5]],{}, class: "nth__selecter" , id: "nth_selecter"
         .garbage_form__content__box__title
           %h3 ゴミの種類
         .garbage_form__content__box__form
-          = f.select :garbage_type, [["燃えるゴミ",1],["燃えないゴミ",2],["資源ごみ（カン・ビン）",3],["資源ごみ（ペット）",4],["古紙",5]],{}, class: "type__selecter" , id: "type__selecter"
+          = f.select :garbage_type, [["---",0],["燃えるゴミ",1],["燃えないゴミ",2],["資源ごみ（カン・ビン）",3],["資源ごみ（ペット）",4],["古紙",5]],{}, class: "type__selecter" , id: "type_selecter"
+        .garbage_form__content__box__form
+          = f.hidden_field :line_id, id: "g_line_id"
     .garbage_form__done
-      = f.submit "登録", class:"garbage_done"
+      = f.submit "登録", id:"garbage_done"
