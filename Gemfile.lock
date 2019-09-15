@@ -75,6 +75,8 @@ GEM
     coffee-script-source (1.12.2)
     concurrent-ruby (1.1.5)
     crass (1.0.4)
+    date_support (1.0.0)
+      activesupport (>= 4.0)
     dotenv (2.7.5)
     dotenv-rails (2.7.5)
       dotenv (= 2.7.5)
@@ -233,6 +235,7 @@ DEPENDENCIES
   capybara (>= 2.15)
   chromedriver-helper
   coffee-rails (~> 4.2)
+  date_support
   dotenv-rails
   haml-rails
   jbuilder (~> 2.5)

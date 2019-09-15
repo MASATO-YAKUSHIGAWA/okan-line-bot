@@ -4,6 +4,7 @@ class LinebotController < ApplicationController
   require 'kconv'
   require 'rexml/document'
   require 'dotenv'
+  require 'date'
 
   # callbackアクションのCSRFトークン認証を無効
   protect_from_forgery :except => [:callback]
