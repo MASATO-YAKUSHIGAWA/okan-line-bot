@@ -3,6 +3,7 @@ class LinebotController < ApplicationController
   require 'open-uri'
   require 'kconv'
   require 'rexml/document'
+  require 'dotenv'
 
   # callbackアクションのCSRFトークン認証を無効
   protect_from_forgery :except => [:callback]
@@ -13,8 +14,8 @@ class LinebotController < ApplicationController
     unless client.validate_signature(body, signature)
       head :bad_request
     end
-    events = client.parse_events_from(body)
-    events.each { |event|
+    @events = client.parse_events_from(body)
+    @events.each { |event|
     line_id = event['source']['userId'] # line_id取得
 
     case event
@@ -62,7 +63,7 @@ class LinebotController < ApplicationController
                 "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
             end
 
-          when /.*(liff).*/
+          when /.*(あ).*/
             push = "line://app/1607924018-2j0Dpx8j"
           end
         end
@@ -102,7 +103,11 @@ end
 
 
   def garbage
-    render "linebot/garbage"
+    @garbage = Garbage.new
+  end
+
+  def garbage_create
+    @garbage = Garbage.create(garbage_params)
   end
 
   private
@@ -110,9 +115,13 @@ end
   def client
     @client ||= Line::Bot::Client.new { |config|
       # 本番環境
-    config.channel_secret = "f25a9c6c930126ad7d1f291e3771b4a8"
-    config.channel_token = "8BvTmnSr8fP37Hq3EEhaxtQLPpngKgv4tlK/Mpml90NsR9N4UjVx5Iudtg07AQ16NqTsuITHGmdXQ/PsaHqDiB1pHPA6ivNLOozl2MIdJqQzf3PbnV3C+5m+kVpTt2cx/YaYXAj9tRH2+GNgX6R9hgdB04t89/1O/w1cDnyilFU="
+    config.channel_secret = ENV["LINE_CHANNEL_SECRET"]
+    config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
     }
+  end
+
+  def garbage_params
+    params.require(:garbage).permit(:wday, :nth, :garbage_type).merge(user_id: 13)
   end
 
 end
