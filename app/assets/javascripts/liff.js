@@ -16,7 +16,7 @@ function initializeApp(data) {
     var g_type = document.getElementById("type_selecter").options[type_idx].text; //種類の取得
         liff.sendMessages([{
         type: 'text',
-        text: `曜日：${wday} \n週：${nth} \n種類：${g_type}`
+        text: `種類：${g_type} \n週：${nth} \n曜日：${wday}`
     }])
   })
 

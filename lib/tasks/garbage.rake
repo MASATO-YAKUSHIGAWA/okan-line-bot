@@ -19,9 +19,9 @@ task :garbage_feed => :environment do
     user = User.find_by(line_id: user_id)
 
     garbages = Garbage.where(user_id: user.id)
-    garbages.each do |garbage| 
-      if date == date.nth_week_of_month(garbage.nth.to_i).day_to(:monday)
-        push = "明日はゴミの日です \nゴミ"
+    garbages.each do |garbage|
+      if date == date.nth_week_of_month(garbage.nth.id.to_i).day_to(:monday)
+        push = "明日は#{garbage.nth.name}#{garbage.wday.name}です。 \n#{garbage.garbage_type.name}の日です。"
       end
       message = {
         type: 'text',
