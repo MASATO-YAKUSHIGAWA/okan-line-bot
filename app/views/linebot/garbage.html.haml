@@ -2,18 +2,19 @@
 .garbage_form
   = form_with model:@garbage, class: "garbage-content__form",id:"garbage_content__form", url: garbage_create_path, local: true do |f|
     .garbage_form__header
-      %h2 ゴミ
-    .garbage_form__liff#liff
+      %h2 ゴミ出しの日を選択してください
     .garbage_form__content
       .garbage_form__content__box
         .garbage_form__content__box__title
           %h3 ゴミの種類
         .garbage_form__content__box__form
           = f.collection_select :garbage_type_id, GarbageType.all, :id, :name, { include_blank: '未選択' }, class: "type__selecter" , id: "type_selecter", required: ""
+      .garbage_form__content__box
         .garbage_form__content__box__title
           %h3 週
         .garbage_form__content__box__form
           = f.collection_select :nth_id, Nth.all, :id, :name, { include_blank: '未選択' }, class: "nth__selecter" , id: "nth_selecter", required: ""
+      .garbage_form__content__box
         .garbage_form__content__box__title
           %h3 曜日
         .garbage_form__content__box__form
