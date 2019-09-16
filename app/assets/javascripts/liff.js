@@ -28,5 +28,10 @@ function initializeApp(data) {
   document.getElementById('garbage_done').addEventListener('click', function () { //LIFFを閉じる
   liff.closeWindow();
   })
+
+  if (events[0].postback.data){
+  messages = [{'type': 'text', 'text': '行ったことがある神社を更新しました'}]; 
+  }
 }
+
 

@@ -25,7 +25,11 @@ class LinebotController < ApplicationController
 
     when Line::Bot::Event::Unfollow # LINEお友達解除された場合、DBから削除する
       User.find_by(line_id: line_id).destroy
-    
+
+    when Line::Bot::Event::Postback
+      garbage_destroy
+      client.reply_message(event['replyToken'], delete_comfirmation)
+
     when Line::Bot::Event::Message #メッセージが送られてきた場合
       case event.type
       when Line::Bot::Event::MessageType::Location # 位置情報が入力された場合
@@ -70,30 +74,34 @@ class LinebotController < ApplicationController
           when /.*(現在登録されているゴミの日を確認します).*/
             @array = []
             allgarbages = Garbage.where(user_id: user.id)
-            allgarbages.each do |allgarbage|
-              g_message = {"type": "template",
-                          "altText": "this is a buttons template",
-                          "template": {
-                            "type": "buttons",
-                            "title": "現在登録されているゴミの日",
-                            "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.nth.name}週\n曜日：#{allgarbage.wday.name}",
-                            "actions": [
-                                {
-                                  "type": "uri",
-                                  "label": "編集する",
-                                  "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
-                                },
-                                {
-                                  "type": "message",
-                                  "label": "削除する",
-                                  "text": "削除する"
-                                },
-                              ],
+            if allgarbages.length > 0
+              allgarbages.each do |allgarbage|
+                g_message = {"type": "template",
+                            "altText": "this is a buttons template",
+                            "template": {
+                              "type": "buttons",
+                              "title": "現在登録されているゴミの日",
+                              "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.nth.name}週\n曜日：#{allgarbage.wday.name}",
+                              "actions": [
+                                  {
+                                    "type": "uri",
+                                    "label": "編集する",
+                                    "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
+                                  },
+                                  {
+                                    "type": "postback",
+                                    "label": "削除する",
+                                    "data": "action=garbage_destroy&id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}"
+                                  },
+                                ],
+                              }
                             }
-                          }
-              @array << g_message
+                @array << g_message
+              end
+              client.reply_message(event['replyToken'], @array)
+            else
+              push = "現在登録はありません"
             end
-            client.reply_message(event['replyToken'], @array)
           end
         end
       end
@@ -153,6 +161,14 @@ end
     }
   end
 
+  def delete_comfirmation
+    {
+    "type": 'text',
+    "text": "削除しました"
+    }
+end
+
+
   def garbage
     @garbage = Garbage.new
   end
@@ -168,6 +184,11 @@ end
   def garbage_update
     @garbage = Garbage.find(params[:garbage][:id])
     @garbage.update(wday_id: params[:garbage][:wday_id], nth_id: params[:garbage][:nth_id], garbage_type_id: params[:garbage][:garbage_type_id])
+  end
+
+  def garbage_destroy
+    garbage_id = params[:linebot][:events][0]["postback"]["data"].split("&")[1].split("=")[1] #postbackdataを分解
+    Garbage.find(garbage_id).destroy
   end
 
   private
