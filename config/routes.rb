@@ -3,5 +3,6 @@ Rails.application.routes.draw do
   post '/callback' => 'linebot#callback'
   get '/garbage' => 'linebot#garbage'
   post '/garbage_create' => 'linebot#garbage_create'
-
+  get '/garbage_edit/' => 'linebot#garbage_edit', as: "garbage_edit"
+  patch '/garbage_update/' => 'linebot#garbage_update'
 end

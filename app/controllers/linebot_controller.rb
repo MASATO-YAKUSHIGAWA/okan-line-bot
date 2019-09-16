@@ -71,8 +71,6 @@ class LinebotController < ApplicationController
             @array = []
             allgarbages = Garbage.where(user_id: user.id)
             allgarbages.each do |allgarbage|
-              # one_garbage = Garbage.find(allgarbage.id)
-              # push = "おはよう#{one_garbage.wday.name}"
               g_message = {"type": "template",
                           "altText": "this is a buttons template",
                           "template": {
@@ -81,9 +79,9 @@ class LinebotController < ApplicationController
                             "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.nth.name}週\n曜日：#{allgarbage.wday.name}",
                             "actions": [
                                 {
-                                  "type": "message",
+                                  "type": "uri",
                                   "label": "編集する",
-                                  "text": "編集"
+                                  "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
                                 },
                                 {
                                   "type": "message",
@@ -96,9 +94,6 @@ class LinebotController < ApplicationController
               @array << g_message
             end
             client.reply_message(event['replyToken'], @array)
-            
-          when /.*(編集).*/
-            client.reply_message(event['replyToken'], [{type: "text", text: "一番"}, {type: "text", text: "2番"}])
           end
         end
       end
@@ -164,6 +159,15 @@ end
 
   def garbage_create
     @garbage = Garbage.create(garbage_params)
+  end
+
+  def garbage_edit
+    @garbage = Garbage.find(params[:id])
+  end
+
+  def garbage_update
+    @garbage = Garbage.find(params[:garbage][:id])
+    @garbage.update(wday_id: params[:garbage][:wday_id], nth_id: params[:garbage][:nth_id], garbage_type_id: params[:garbage][:garbage_type_id])
   end
 
   private
