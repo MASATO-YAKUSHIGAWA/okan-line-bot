@@ -1,6 +1,5 @@
 class Nth < ActiveHash::Base
   self.data = [
-    {id: 0, name: '----'},
     {id: 1, name: '第一'},
     {id: 2, name: '第二'},
     {id: 3, name: '第三'},

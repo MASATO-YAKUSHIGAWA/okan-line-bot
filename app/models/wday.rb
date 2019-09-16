@@ -1,6 +1,5 @@
 class Wday < ActiveHash::Base
   self.data = [
-    {id: 0, name: '----'},
     {id: 1, name: '月曜日'},
     {id: 2, name: '火曜日'},
     {id: 3, name: '水曜日'},

@@ -64,8 +64,41 @@ class LinebotController < ApplicationController
                 "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
             end
 
-          when /.*(あ).*/
-            push = "line://app/1607924018-2j0Dpx8j"
+          when /.*(か).*/
+            client.reply_message(event['replyToken'], garbage_message)
+
+          when /.*(現在登録されているゴミの日を確認します).*/
+            @array = []
+            allgarbages = Garbage.where(user_id: user.id)
+            allgarbages.each do |allgarbage|
+              # one_garbage = Garbage.find(allgarbage.id)
+              # push = "おはよう#{one_garbage.wday.name}"
+              g_message = {"type": "template",
+                          "altText": "this is a buttons template",
+                          "template": {
+                            "type": "buttons",
+                            "title": "現在登録されているゴミの日",
+                            "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.nth.name}週\n曜日：#{allgarbage.wday.name}",
+                            "actions": [
+                                {
+                                  "type": "message",
+                                  "label": "編集する",
+                                  "text": "編集"
+                                },
+                                {
+                                  "type": "message",
+                                  "label": "削除する",
+                                  "text": "削除する"
+                                },
+                              ],
+                            }
+                          }
+              @array << g_message
+            end
+            client.reply_message(event['replyToken'], @array)
+            
+          when /.*(編集).*/
+            client.reply_message(event['replyToken'], [{type: "text", text: "一番"}, {type: "text", text: "2番"}])
           end
         end
       end
@@ -87,21 +120,43 @@ end
       {"type": "template", #テンプレートメッセージオブジェクトの共通プロパティ
         "altText": "位置検索中",
         "template": {          #テンプレート指定
-            "type": "buttons", #ボタンテンプレート使用
-            "title": "現在位置検索",
-            "text": "現在の位置を送信しますか？",
-            "actions": [
-                {
-                  "type": "uri",
-                  "label": "現在位置を送る",
-                  "uri": "line://nv/location" #位置情報画を開くスキーム
-                }
-            ]
+          "type": "buttons", #ボタンテンプレート使用
+          "title": "現在位置検索",
+          "text": "現在の位置を送信しますか？",
+          "actions": [
+              {
+                "type": "uri",
+                "label": "現在位置を送る",
+                "uri": "line://nv/location" #位置情報画を開くスキーム
+              }
+          ]
         }
       }
     ]
   end
 
+  def garbage_message
+    {"type": "template",
+      "altText": "this is a buttons template}",
+      "template": {
+        "type": "buttons",
+        "title": "ゴミの日メニュー",
+        "text": "選択してください",
+        "actions": [
+            {
+              "type": "message",
+              "label": "確認する",
+              "text": "現在登録されているゴミの日を確認します"
+            },
+            {
+              "type": "uri",
+              "label": "登録する",
+              "uri": "line://app/1607924018-2j0Dpx8j"
+            },
+        ],
+      }
+    }
+  end
 
   def garbage
     @garbage = Garbage.new
