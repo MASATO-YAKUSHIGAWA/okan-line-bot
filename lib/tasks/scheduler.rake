@@ -4,9 +4,10 @@ task :update_feed => :environment do
   require 'open-uri'
   require 'kconv'
   require 'rexml/document'
+  require 'dotenv'
 
   client ||= Line::Bot::Client.new { |config|
-    config.channel_secret = ENV["LINE_CHANNEL_SECRET_ID"]
+    config.channel_secret = ENV["LINE_CHANNEL_SECRET"]
     config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
 }
   # 使用したxmlデータ（毎日朝6時更新）：以下URLを入力すれば見ることができます。

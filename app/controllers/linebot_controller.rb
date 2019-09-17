@@ -3,6 +3,8 @@ class LinebotController < ApplicationController
   require 'open-uri'
   require 'kconv'
   require 'rexml/document'
+  require 'dotenv'
+  require 'date'
 
   # callbackアクションのCSRFトークン認証を無効
   protect_from_forgery :except => [:callback]
@@ -13,8 +15,8 @@ class LinebotController < ApplicationController
     unless client.validate_signature(body, signature)
       head :bad_request
     end
-    events = client.parse_events_from(body)
-    events.each { |event|
+    @events = client.parse_events_from(body)
+    @events.each { |event|
     line_id = event['source']['userId'] # line_id取得
 
     case event
@@ -23,7 +25,15 @@ class LinebotController < ApplicationController
 
     when Line::Bot::Event::Unfollow # LINEお友達解除された場合、DBから削除する
       User.find_by(line_id: line_id).destroy
-    
+
+    when Line::Bot::Event::Postback
+      postback_data = event["postback"]["data"].split("&")
+      if postback_data[0] == "garbage_destroy"
+        garbage_destroy(postback_data[1])
+        client.reply_message(event['replyToken'], delete_comfirmation)
+      elsif postback_data[0] == "garbage_capacity"
+        client.reply_message(event['replyToken'], garbage_capacity)
+      end
     when Line::Bot::Event::Message #メッセージが送られてきた場合
       case event.type
       when Line::Bot::Event::MessageType::Location # 位置情報が入力された場合
@@ -61,6 +71,42 @@ class LinebotController < ApplicationController
               push =
                 "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
             end
+
+          when /.*(か).*/
+            allgarbages = Garbage.where(user_id: user.id)
+            client.reply_message(event['replyToken'], garbage_message(allgarbages.length))
+
+          when /.*(現在登録されているゴミの日を確認します).*/
+            @array = []
+            allgarbages = Garbage.where(user_id: user.id)
+            if allgarbages.length > 0
+              allgarbages.each do |allgarbage|
+                g_message = {"type": "template",
+                            "altText": "this is a buttons template",
+                            "template": {
+                              "type": "buttons",
+                              "title": "現在登録されているゴミの日",
+                              "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.nth.name}週\n曜日：#{allgarbage.wday.name}",
+                              "actions": [
+                                  {
+                                    "type": "uri",
+                                    "label": "編集する",
+                                    "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
+                                  },
+                                  {
+                                    "type": "postback",
+                                    "label": "削除する",
+                                    "data": "garbage_destroy&#{allgarbage.id}"
+                                  },
+                                ],
+                              }
+                            }
+                @array << g_message
+              end
+              client.reply_message(event['replyToken'], @array)
+            else
+              push = "登録がありません"
+            end
           end
         end
       end
@@ -82,29 +128,117 @@ end
       {"type": "template", #テンプレートメッセージオブジェクトの共通プロパティ
         "altText": "位置検索中",
         "template": {          #テンプレート指定
-            "type": "buttons", #ボタンテンプレート使用
-            "title": "現在位置検索",
-            "text": "現在の位置を送信しますか？",
-            "actions": [
-                {
-                  "type": "uri",
-                  "label": "現在位置を送る",
-                  "uri": "line://nv/location" #位置情報画を開くスキーム
-                }
-            ]
+          "type": "buttons", #ボタンテンプレート使用
+          "title": "現在位置検索",
+          "text": "現在の位置を送信しますか？",
+          "actions": [
+              {
+                "type": "uri",
+                "label": "現在位置を送る",
+                "uri": "line://nv/location" #位置情報画を開くスキーム
+              }
+          ]
         }
       }
     ]
   end
+
+  def garbage_message(length)
+    if 0 <= length && length < 5
+      {"type": "template",
+        "altText": "this is a buttons template}",
+        "template": {
+          "type": "buttons",
+          "title": "ゴミの日メニュー",
+          "text": "選択してください",
+          "actions": [
+              {
+                "type": "message",
+                "label": "確認する",
+                "text": "現在登録されているゴミの日を確認します"
+              },
+              {
+                "type": "uri",
+                "label": "登録する",
+                "uri": "line://app/1607924018-2j0Dpx8j"
+              },
+          ],
+        }
+      }
+    elsif length >= 5
+      {"type": "template",
+        "altText": "this is a buttons template}",
+        "template": {
+          "type": "buttons",
+          "title": "ゴミの日メニュー",
+          "text": "選択してください",
+          "actions": [
+              {
+                "type": "message",
+                "label": "確認する",
+                "text": "現在登録されているゴミの日を確認します"
+              },
+              {
+                "type": "postback",
+                "label": "登録する",
+                "data": "garbage_capacity&over"
+              },
+          ],
+        }
+      }
+    end
+  end
+
+  def garbage
+    @garbage = Garbage.new
+  end
+
+  def garbage_create
+    @garbage = Garbage.create(garbage_params)
+  end
+
+  def garbage_edit
+    @garbage = Garbage.find(params[:id])
+  end
+
+  def garbage_update
+    @garbage = Garbage.find(params[:garbage][:id])
+    @garbage.update(wday_id: params[:garbage][:wday_id], nth_id: params[:garbage][:nth_id], garbage_type_id: params[:garbage][:garbage_type_id])
+  end
+
+  def garbage_destroy(data_id)
+    Garbage.find(data_id).destroy
+  end
+
+  def delete_comfirmation
+    {
+    "type": 'text',
+    "text": "削除しました"
+    }
+  end
+
+  def garbage_capacity
+    {
+      "type": 'text',
+      "text": "5件登録されています\nこれ以上登録できません"
+    }
+  end
+
 
   private
 
   def client
     @client ||= Line::Bot::Client.new { |config|
       # 本番環境
-      config.channel_secret = ENV["LINE_CHANNEL_SECRET_ID"]
-      config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
+    config.channel_secret = ENV["LINE_CHANNEL_SECRET"]
+    config.channel_token = ENV["LINE_CHANNEL_TOKEN"]
     }
+  end
+
+  def garbage_params
+    user = User.find_by(line_id: params[:garbage][:line_id])
+    user_id = user.id
+    params.require(:garbage).permit(:wday_id, :nth_id, :garbage_type_id).merge(user_id: user_id)
   end
 
 end
