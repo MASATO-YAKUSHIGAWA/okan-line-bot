@@ -45,7 +45,6 @@ class LinebotController < ApplicationController
           User.update(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を更新
         else
           User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
-          binding.pry
         end
       when Line::Bot::Event::MessageType::Text
         if User.find_by(line_id: line_id) #linee_id取得
