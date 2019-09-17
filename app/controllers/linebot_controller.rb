@@ -27,9 +27,13 @@ class LinebotController < ApplicationController
       User.find_by(line_id: line_id).destroy
 
     when Line::Bot::Event::Postback
-      garbage_destroy
-      client.reply_message(event['replyToken'], delete_comfirmation)
-
+      postback_data = event["postback"]["data"].split("&")
+      if postback_data[0] == "garbage_destroy"
+        garbage_destroy(postback_data[1])
+        client.reply_message(event['replyToken'], delete_comfirmation)
+      elsif postback_data[0] == "garbage_capacity"
+        client.reply_message(event['replyToken'], garbage_capacity)
+      end
     when Line::Bot::Event::Message #メッセージが送られてきた場合
       case event.type
       when Line::Bot::Event::MessageType::Location # 位置情報が入力された場合
@@ -69,7 +73,8 @@ class LinebotController < ApplicationController
             end
 
           when /.*(か).*/
-            client.reply_message(event['replyToken'], garbage_message)
+            allgarbages = Garbage.where(user_id: user.id)
+            client.reply_message(event['replyToken'], garbage_message(allgarbages.length))
 
           when /.*(現在登録されているゴミの日を確認します).*/
             @array = []
@@ -91,7 +96,7 @@ class LinebotController < ApplicationController
                                   {
                                     "type": "postback",
                                     "label": "削除する",
-                                    "data": "action=garbage_destroy&id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}"
+                                    "data": "garbage_destroy&#{allgarbage.id}"
                                   },
                                 ],
                               }
@@ -100,7 +105,7 @@ class LinebotController < ApplicationController
               end
               client.reply_message(event['replyToken'], @array)
             else
-              push = "現在登録はありません"
+              push = "登録がありません"
             end
           end
         end
@@ -138,36 +143,51 @@ end
     ]
   end
 
-  def garbage_message
-    {"type": "template",
-      "altText": "this is a buttons template}",
-      "template": {
-        "type": "buttons",
-        "title": "ゴミの日メニュー",
-        "text": "選択してください",
-        "actions": [
-            {
-              "type": "message",
-              "label": "確認する",
-              "text": "現在登録されているゴミの日を確認します"
-            },
-            {
-              "type": "uri",
-              "label": "登録する",
-              "uri": "line://app/1607924018-2j0Dpx8j"
-            },
-        ],
+  def garbage_message(length)
+    if 0 <= length && length < 5
+      {"type": "template",
+        "altText": "this is a buttons template}",
+        "template": {
+          "type": "buttons",
+          "title": "ゴミの日メニュー",
+          "text": "選択してください",
+          "actions": [
+              {
+                "type": "message",
+                "label": "確認する",
+                "text": "現在登録されているゴミの日を確認します"
+              },
+              {
+                "type": "uri",
+                "label": "登録する",
+                "uri": "line://app/1607924018-2j0Dpx8j"
+              },
+          ],
+        }
       }
-    }
+    elsif length >= 5
+      {"type": "template",
+        "altText": "this is a buttons template}",
+        "template": {
+          "type": "buttons",
+          "title": "ゴミの日メニュー",
+          "text": "選択してください",
+          "actions": [
+              {
+                "type": "message",
+                "label": "確認する",
+                "text": "現在登録されているゴミの日を確認します"
+              },
+              {
+                "type": "postback",
+                "label": "登録する",
+                "data": "garbage_capacity&over"
+              },
+          ],
+        }
+      }
+    end
   end
-
-  def delete_comfirmation
-    {
-    "type": 'text',
-    "text": "削除しました"
-    }
-end
-
 
   def garbage
     @garbage = Garbage.new
@@ -186,10 +206,24 @@ end
     @garbage.update(wday_id: params[:garbage][:wday_id], nth_id: params[:garbage][:nth_id], garbage_type_id: params[:garbage][:garbage_type_id])
   end
 
-  def garbage_destroy
-    garbage_id = params[:linebot][:events][0]["postback"]["data"].split("&")[1].split("=")[1] #postbackdataを分解
-    Garbage.find(garbage_id).destroy
+  def garbage_destroy(data_id)
+    Garbage.find(data_id).destroy
   end
+
+  def delete_comfirmation
+    {
+    "type": 'text',
+    "text": "削除しました"
+    }
+  end
+
+  def garbage_capacity
+    {
+      "type": 'text',
+      "text": "5件登録されています\nこれ以上登録できません"
+    }
+  end
+
 
   private
 
