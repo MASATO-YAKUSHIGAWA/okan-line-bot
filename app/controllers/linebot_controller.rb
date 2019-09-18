@@ -39,13 +39,15 @@ class LinebotController < ApplicationController
       when Line::Bot::Event::MessageType::Location # 位置情報が入力された場合
         lat = event.message['latitude'] # 緯度
         long = event.message['longitude'] # 経度
-        push = "ありがとう"
         area = AreaInfo.find_by_sql(["select * from area_infos order by abs(latitude - ?) + abs(longitude - ?) ASC limit 1 ", lat, long]) #現在地から一番近い観測地点を取得
         if User.find_by(line_id: line_id)
           User.update(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を更新
         else
           User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
         end
+        user = User.find_by(line_id: line_id)
+        user_location = AreaInfo.find(user.area_info_id)
+        push = "#{user_location.area_name}か、\nそんなとこで何してるんや \nたまには帰ってきいや！"
       when Line::Bot::Event::MessageType::Text
         if User.find_by(line_id: line_id) #linee_id取得
           user = User.find_by(line_id: line_id)
@@ -66,17 +68,18 @@ class LinebotController < ApplicationController
             per18to24 = doc.elements[xpath + 'info[2]/rainfallchance/period[4]'].text
             if per06to12.to_i >= min_per || per12to18.to_i >= min_per || per18to24.to_i >= min_per
               push =
-                "明日の天気だよね。\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降りそうだよ(>_<)\n今のところ降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+                "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨降りそうやで\n今のところ、\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nこんな感じや\nまた明日の朝に雨降りそうやったら教えたるわ！"
             else
               push =
-                "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
+                "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨降らんと思うで\nまた明日の朝に雨降りそうやったら教えたるわ！"
             end
 
-          when /.*(ゴミ情報).*/
+          when /.*(ゴミ情報を教えてください).*/
             allgarbages = Garbage.where(user_id: user.id)
             client.reply_message(event['replyToken'], garbage_message(allgarbages.length))
 
           when /.*(現在登録されているゴミの日を確認します).*/
+            push = "今登録されてるゴミの日や\nちゃんとゴミ捨てるんやで！"
             @array = []
             allgarbages = Garbage.where(user_id: user.id)
             if allgarbages.length > 0
@@ -128,7 +131,7 @@ class LinebotController < ApplicationController
               end
               client.reply_message(event['replyToken'], @array)
             else
-              push = "登録がありません"
+              push = "まだ登録されてへんわ、登録しなさい"
             end
           end
         end
@@ -147,7 +150,7 @@ end
   def first_message
     [
       {"type": 'text',
-      "text": "こんにちは！\n現在位置を送ってね！"},
+      "text": "久しぶりやな\nあんた今どこおるんや？"},
       {"type": "template", #テンプレートメッセージオブジェクトの共通プロパティ
         "altText": "位置検索中",
         "template": {          #テンプレート指定
@@ -168,47 +171,55 @@ end
 
   def garbage_message(length)
     if 0 <= length && length < 5
-      {"type": "template",
-        "altText": "this is a buttons template}",
-        "template": {
-          "type": "buttons",
-          "title": "ゴミの日メニュー",
-          "text": "選択してください",
-          "actions": [
-              {
-                "type": "message",
-                "label": "確認する",
-                "text": "現在登録されているゴミの日を確認します"
-              },
-              {
-                "type": "uri",
-                "label": "登録する",
-                "uri": "line://app/1607924018-2j0Dpx8j"
-              },
-          ],
+      [
+        {"type": 'text',
+        "text": "ゴミの日メニューや"},
+        {"type": "template",
+          "altText": "this is a buttons template}",
+          "template": {
+            "type": "buttons",
+            "title": "ゴミの日メニュー",
+            "text": "選択しいや",
+            "actions": [
+                {
+                  "type": "message",
+                  "label": "確認する",
+                  "text": "現在登録されているゴミの日を確認します"
+                },
+                {
+                  "type": "uri",
+                  "label": "登録する",
+                  "uri": "line://app/1607924018-2j0Dpx8j"
+                },
+            ],
+          }
         }
-      }
+      ]
     elsif length >= 5
-      {"type": "template",
-        "altText": "this is a buttons template}",
-        "template": {
-          "type": "buttons",
-          "title": "ゴミの日メニュー",
-          "text": "選択してください",
-          "actions": [
-              {
-                "type": "message",
-                "label": "確認する",
-                "text": "現在登録されているゴミの日を確認します"
-              },
-              {
-                "type": "postback",
-                "label": "登録する",
-                "data": "garbage_capacity&over"
-              },
-          ],
+      [
+        {"type": 'text',
+        "text": "ゴミの日メニューや"},
+        {"type": "template",
+          "altText": "this is a buttons template}",
+          "template": {
+            "type": "buttons",
+            "title": "ゴミの日メニュー",
+            "text": "選択しいや",
+            "actions": [
+                {
+                  "type": "message",
+                  "label": "確認する",
+                  "text": "現在登録されているゴミの日を確認します"
+                },
+                {
+                  "type": "postback",
+                  "label": "登録する",
+                  "data": "garbage_capacity&over"
+                },
+            ],
+          }
         }
-      }
+      ]
     end
   end
 
@@ -236,14 +247,14 @@ end
   def delete_comfirmation
     {
     "type": 'text',
-    "text": "削除しました"
+    "text": "削除したわ"
     }
   end
 
   def garbage_capacity
     {
       "type": 'text',
-      "text": "5件登録されています\nこれ以上登録できません"
+      "text": "5件登録されてんで\nこれ以上登録できへんわ"
     }
   end
 

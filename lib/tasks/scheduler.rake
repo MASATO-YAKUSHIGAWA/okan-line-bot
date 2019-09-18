@@ -58,13 +58,13 @@ task :update_feed => :environment do
      # 降水確率によってメッセージを変更する閾値の設定
     mid_per = 50
     if per06to12.to_i >= mid_per || per12to18.to_i >= mid_per || per18to24.to_i >= mid_per
-      word3 = "今日は雨が降りそうだから傘を忘れないでね！"
-      word3 = "今日は雨が降るかもしれないから折りたたみ傘があると安心だよ！"
+      word3 = "今日は雨や！傘忘れたらあかんで！"
+      word3 = "今日は雨かもしやんから、折りたたみでも持っていき！！"
      # 発信するメッセージの設定
       push =
-       "#{word3}\n降水確率はこんな感じだよ。\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％"
+       "#{word3}\n降水確率はこんなもんや\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％"
     else
-      push = "#{user_location.prep_name}はいい天気！"
+      push = "#{user_location.prep_name}はいい天気！\n 気持ちええなー"
     end
 
     message = {
