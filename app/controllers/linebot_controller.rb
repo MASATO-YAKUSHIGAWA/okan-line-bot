@@ -72,7 +72,7 @@ class LinebotController < ApplicationController
                 "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
             end
 
-          when /.*(ゴミの日).*/
+          when /.*(ゴミ情報).*/
             allgarbages = Garbage.where(user_id: user.id)
             client.reply_message(event['replyToken'], garbage_message(allgarbages.length))
 
