@@ -3,7 +3,10 @@
   width: 100%;
   text-align: center;
   &__header{
+    h2{
     font-size: 50px;
+    font-weight: bold;
+    }
   }
   &__content{
     &__box{
@@ -19,6 +22,7 @@
           width: 600px;
           font-size: 50px;
           height: 200px;
+          background-color: white;
         }
       }
     }
@@ -34,6 +38,31 @@
       line-height: 200px;
       border: 1px solid black;
       cursor: pointer;
+      background-color: #13bf00;
     }
+  }
+}
+#first_week_select{
+  display: inline-block;
+  margin-right: 10px;
+  select{
+    padding: 0 auto;
+    text-align: center;
+    display: inline-block;
+    width: 300px;
+    font-size: 50px;
+    height: 200px;
+  }
+}
+#second_week_select{
+  display: inline-block;
+  margin-left: 10px;
+  select{
+    padding: 0 auto;
+    text-align: center;
+    display: inline-block;
+    width: 300px;
+    font-size: 50px;
+    height: 200px;
   }
 }

@@ -72,7 +72,7 @@ class LinebotController < ApplicationController
                 "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨が降らない予定だよ(^^)\nまた明日の朝の最新の天気予報で雨が降りそうだったら教えるね！"
             end
 
-          when /.*(か).*/
+          when /.*(ゴミの日).*/
             allgarbages = Garbage.where(user_id: user.id)
             client.reply_message(event['replyToken'], garbage_message(allgarbages.length))
 
@@ -81,26 +81,49 @@ class LinebotController < ApplicationController
             allgarbages = Garbage.where(user_id: user.id)
             if allgarbages.length > 0
               allgarbages.each do |allgarbage|
-                g_message = {"type": "template",
-                            "altText": "this is a buttons template",
-                            "template": {
-                              "type": "buttons",
-                              "title": "現在登録されているゴミの日",
-                              "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.nth.name}週\n曜日：#{allgarbage.wday.name}",
-                              "actions": [
-                                  {
-                                    "type": "uri",
-                                    "label": "編集する",
-                                    "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
-                                  },
-                                  {
-                                    "type": "postback",
-                                    "label": "削除する",
-                                    "data": "garbage_destroy&#{allgarbage.id}"
-                                  },
-                                ],
+                if allgarbage.second_nth_id.length != 0
+                  g_message = {"type": "template",
+                              "altText": "this is a buttons template",
+                              "template": {
+                                "type": "buttons",
+                                "title": "現在登録されているゴミの日",
+                                "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.first_nth.name}週、#{allgarbage.second_nth.name}週 \n曜日：#{allgarbage.wday.name}",
+                                "actions": [
+                                    {
+                                      "type": "uri",
+                                      "label": "編集する",
+                                      "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.first_nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
+                                    },
+                                    {
+                                      "type": "postback",
+                                      "label": "削除する",
+                                      "data": "garbage_destroy&#{allgarbage.id}"
+                                    },
+                                  ],
+                                }
                               }
-                            }
+                else 
+                  g_message = {"type": "template",
+                    "altText": "this is a buttons template",
+                    "template": {
+                      "type": "buttons",
+                      "title": "現在登録されているゴミの日",
+                      "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.first_nth.name}週 \n曜日：#{allgarbage.wday.name}",
+                      "actions": [
+                          {
+                            "type": "uri",
+                            "label": "編集する",
+                            "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.first_nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
+                          },
+                          {
+                            "type": "postback",
+                            "label": "削除する",
+                            "data": "garbage_destroy&#{allgarbage.id}"
+                          },
+                        ],
+                      }
+                    }
+                end
                 @array << g_message
               end
               client.reply_message(event['replyToken'], @array)
@@ -238,7 +261,7 @@ end
   def garbage_params
     user = User.find_by(line_id: params[:garbage][:line_id])
     user_id = user.id
-    params.require(:garbage).permit(:wday_id, :nth_id, :garbage_type_id).merge(user_id: user_id)
+    params.require(:garbage).permit(:wday_id, :first_nth_id, :second_nth_id, :garbage_type_id).merge(user_id: user_id)
   end
 
 end
