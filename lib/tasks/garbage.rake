@@ -20,8 +20,14 @@ task :garbage_feed => :environment do
 
     garbages = Garbage.where(user_id: user.id)
     garbages.each do |garbage|
-      if date == date.nth_week_of_month(garbage.nth.id.to_i).day_to(:monday)
-        push = "明日は#{garbage.nth.name}#{garbage.wday.name}です。 \n#{garbage.garbage_type.name}の日です。"
+
+      en_wday_array = ["first", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+      en_wday = en_wday_array[garbage.wday.id] #曜日の取得（英語）
+
+      if date == date.nth_week_of_month(garbage.first_nth.id.to_i).day_to(:"#{en_wday}")
+        push = "明日は#{garbage.first_nth.name}#{garbage.wday.name}です。 \n#{garbage.garbage_type.name}の日です。"
+      elsif garbage.second_nth_id.length != 0 && date == date.nth_week_of_month(garbage.second_nth.id.to_i).day_to(:"#{en_wday}")
+        push = "明日は#{garbage.second_nth.name}#{garbage.wday.name}です。 \n#{garbage.garbage_type.name}の日です。"
       end
       message = {
         type: 'text',

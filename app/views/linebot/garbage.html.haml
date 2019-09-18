@@ -1,4 +1,3 @@
-%title  ゴミapp
 .garbage_form
   = form_with model:@garbage, class: "garbage-content__form",id:"garbage_content__form", url: garbage_create_path, local: true do |f|
     .garbage_form__header
@@ -12,8 +11,10 @@
       .garbage_form__content__box
         .garbage_form__content__box__title
           %h3 週
-        .garbage_form__content__box__form
-          = f.collection_select :nth_id, Nth.all, :id, :name, { include_blank: '未選択' }, class: "nth__selecter" , id: "nth_selecter", required: ""
+        .garbage_form__content__box__form#first_week_select
+          = f.collection_select :first_nth_id, FirstNth.all, :id, :name, { include_blank: '未選択' }, class: "nth__selecter" , id: "1st_nth_selecter", required: ""
+        .garbage_form__content__box__form#second_week_select
+          = f.collection_select :second_nth_id, SecondNth.all, :id, :name, { include_blank: '未選択' }, class: "nth__selecter" , id: "2nd_nth_selecter"
       .garbage_form__content__box
         .garbage_form__content__box__title
           %h3 曜日

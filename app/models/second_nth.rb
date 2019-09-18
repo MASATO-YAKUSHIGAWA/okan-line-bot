@@ -1,4 +1,4 @@
-class Nth < ActiveHash::Base
+class SecondNth < ActiveHash::Base
   self.data = [
     {id: 1, name: '第一'},
     {id: 2, name: '第二'},
