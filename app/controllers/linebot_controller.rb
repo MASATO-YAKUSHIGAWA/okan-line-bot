@@ -237,7 +237,7 @@ end
 
   def garbage_update
     @garbage = Garbage.find(params[:garbage][:id])
-    @garbage.update(wday_id: params[:garbage][:wday_id], nth_id: params[:garbage][:nth_id], garbage_type_id: params[:garbage][:garbage_type_id])
+    @garbage.update(wday_id: params[:garbage][:wday_id], first_nth_id: params[:garbage][:first_nth_id], second_nth_id: params[:garbage][:second_nth_id], garbage_type_id: params[:garbage][:garbage_type_id])
   end
 
   def garbage_destroy(data_id)
