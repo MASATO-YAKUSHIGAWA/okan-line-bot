@@ -1,3 +1,5 @@
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+
 .garbage_form{
   margin: 0 auto;
   width: 100%;
@@ -28,14 +30,14 @@
     }
   }
   &__done{
-    margin: 100px auto 0;
+    margin: 80px auto 0;
     input{
       display: inline-block;
       width: 600px;
       font-weight: bold;
       font-size: 50px;
       border-style: none;
-      line-height: 150px;
+      line-height: 120px;
       border: 1px solid black;
       cursor: pointer;
       background-color: #13bf00;
@@ -65,4 +67,5 @@
     font-size: 50px;
     height: 150px;
   }
+}
 }
