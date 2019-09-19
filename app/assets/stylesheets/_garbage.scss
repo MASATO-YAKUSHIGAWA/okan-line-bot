@@ -21,21 +21,21 @@
           display: inline-block;
           width: 600px;
           font-size: 50px;
-          height: 200px;
+          height: 150px;
           background-color: white;
         }
       }
     }
   }
   &__done{
-    margin: 200px auto 0;
+    margin: 100px auto 0;
     input{
       display: inline-block;
       width: 600px;
       font-weight: bold;
       font-size: 50px;
       border-style: none;
-      line-height: 200px;
+      line-height: 150px;
       border: 1px solid black;
       cursor: pointer;
       background-color: #13bf00;
@@ -51,7 +51,7 @@
     display: inline-block;
     width: 300px;
     font-size: 50px;
-    height: 200px;
+    height: 150px;
   }
 }
 #second_week_select{
@@ -63,6 +63,6 @@
     display: inline-block;
     width: 300px;
     font-size: 50px;
-    height: 200px;
+    height: 150px;
   }
 }

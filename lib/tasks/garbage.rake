@@ -21,7 +21,7 @@ task :garbage_feed => :environment do
     garbages = Garbage.where(user_id: user.id)
     garbages.each do |garbage|
 
-      en_wday_array = ["first", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+      en_wday_array = ["first","sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
       en_wday = en_wday_array[garbage.wday.id] #曜日の取得（英語）
 
       if date == date.nth_week_of_month(garbage.first_nth.id.to_i).day_to(:"#{en_wday}")
