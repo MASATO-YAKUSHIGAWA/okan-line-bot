@@ -86,7 +86,7 @@ class LinebotController < ApplicationController
               allgarbages.each do |allgarbage|
                 if allgarbage.second_nth_id.length != 0
                   g_message = {"type": "template",
-                              "altText": "this is a buttons template",
+                              "altText": "現在登録されているゴミの日表示中",
                               "template": {
                                 "type": "buttons",
                                 "title": "現在登録されているゴミの日",
@@ -107,7 +107,7 @@ class LinebotController < ApplicationController
                               }
                 else 
                   g_message = {"type": "template",
-                    "altText": "this is a buttons template",
+                    "altText": "現在登録されているゴミの日表示中",
                     "template": {
                       "type": "buttons",
                       "title": "現在登録されているゴミの日",
@@ -175,7 +175,7 @@ end
         {"type": 'text',
         "text": "ゴミの日メニューや"},
         {"type": "template",
-          "altText": "this is a buttons template}",
+          "altText": "ゴミの日メニュー選択画面",
           "template": {
             "type": "buttons",
             "title": "ゴミの日メニュー",
@@ -200,7 +200,7 @@ end
         {"type": 'text',
         "text": "ゴミの日メニューや"},
         {"type": "template",
-          "altText": "this is a buttons template}",
+          "altText": "ゴミの日メニュー選択画面",
           "template": {
             "type": "buttons",
             "title": "ゴミの日メニュー",
