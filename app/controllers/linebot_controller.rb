@@ -90,7 +90,7 @@ class LinebotController < ApplicationController
                               "template": {
                                 "type": "buttons",
                                 "title": "現在登録されているゴミの日",
-                                "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.first_nth.name}週、#{allgarbage.second_nth.name}週 \n曜日：#{allgarbage.wday.name}",
+                                "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.first_nth.name}、#{allgarbage.second_nth.name} \n曜日：#{allgarbage.wday.name}",
                                 "actions": [
                                     {
                                       "type": "uri",
@@ -111,7 +111,7 @@ class LinebotController < ApplicationController
                     "template": {
                       "type": "buttons",
                       "title": "現在登録されているゴミの日",
-                      "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.first_nth.name}週 \n曜日：#{allgarbage.wday.name}",
+                      "text": "種類：#{allgarbage.garbage_type.name}\n週    ：#{allgarbage.first_nth.name} \n曜日：#{allgarbage.wday.name}",
                       "actions": [
                           {
                             "type": "uri",
