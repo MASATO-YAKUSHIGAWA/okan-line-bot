@@ -46,7 +46,8 @@ class LinebotController < ApplicationController
         else
           User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
         end
-        user_location = AreaInfo.find(@user.area_info_id)
+        user = User.find_by(line_id: line_id)
+        user_location = AreaInfo.find(user.area_info_id)
         push = "#{user_location.area_name}か、\nそんなとこで何してるんや \nたまには帰ってきいや！"
       when Line::Bot::Event::MessageType::Text
         if User.find_by(line_id: line_id) #linee_id取得
