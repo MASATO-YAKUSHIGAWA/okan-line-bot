@@ -44,7 +44,7 @@ class LinebotController < ApplicationController
         if @user
           @user.update(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を更新
         else
-          @user.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
+          User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
         end
         user_location = AreaInfo.find(@user.area_info_id)
         push = "#{user_location.area_name}か、\nそんなとこで何してるんや \nたまには帰ってきいや！"
