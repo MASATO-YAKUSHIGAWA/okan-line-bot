@@ -71,3 +71,5 @@ gem 'pry-byebug'
 gem "haml-rails"
 gem "date_support"
 gem "active_hash"
+gem "seed_fu"
+
