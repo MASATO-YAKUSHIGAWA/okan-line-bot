@@ -40,13 +40,13 @@ class LinebotController < ApplicationController
         lat = event.message['latitude'] # 緯度
         long = event.message['longitude'] # 経度
         area = AreaInfo.find_by_sql(["select * from area_infos order by abs(latitude - ?) + abs(longitude - ?) ASC limit 1 ", lat, long]) #現在地から一番近い観測地点を取得
-        if User.find_by(line_id: line_id)
-          User.update(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を更新
+        @user = User.find_by(line_id: line_id)
+        if @user
+          @user.update(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を更新
         else
-          User.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
+          @user.create(line_id: line_id, area_info_id: area.first.id) #ユーザー情報を保存
         end
-        user = User.find_by(line_id: line_id)
-        user_location = AreaInfo.find(user.area_info_id)
+        user_location = AreaInfo.find(@user.area_info_id)
         push = "#{user_location.area_name}か、\nそんなとこで何してるんや \nたまには帰ってきいや！"
       when Line::Bot::Event::MessageType::Text
         if User.find_by(line_id: line_id) #linee_id取得
