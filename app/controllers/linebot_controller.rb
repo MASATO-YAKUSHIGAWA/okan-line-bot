@@ -229,7 +229,6 @@ end
   end
 
   def garbage_create
-    binding.pry
     @garbage = Garbage.create(garbage_params)
   end
 
