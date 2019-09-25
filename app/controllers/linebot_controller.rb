@@ -61,6 +61,9 @@ class LinebotController < ApplicationController
 
           min_per = 30
           case input
+
+          when /.*(お試しです).*/
+            push = "line://app/1607924018-E03OZ2vn"
             # 「明日」or「あした」というワードが含まれる場合
           when /.*(明日|あした).*/
             # info[2]：明日の天気
