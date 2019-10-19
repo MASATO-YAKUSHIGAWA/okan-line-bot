@@ -72,7 +72,7 @@ class LinebotController < ApplicationController
             per18to24 = doc.elements[xpath + 'info[2]/rainfallchance/period[4]'].text
             if per06to12.to_i >= min_per || per12to18.to_i >= min_per || per18to24.to_i >= min_per
               push =
-                "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨降りそうやで\n今のところ、\n　  6〜12時　#{per06to12}％\n　12〜18時　 #{per12to18}％\n　18〜24時　#{per18to24}％\nこんな感じや\nまた明日の朝に雨降りそうやったら教えたるわ！"
+                "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨降りそうやで\n今のところ、\n 6〜12時 #{per06to12}％\n 12〜18時 #{per12to18}％\n 18〜24時 #{per18to24}％\nこんな感じや\nまた明日の朝に雨降りそうやったら教えたるわ！"
             else
               push =
                 "明日の天気？\n明日の#{user_location.prep_name}、#{user_location.area_name}は雨降らんと思うで\nまた明日の朝に雨降りそうやったら教えたるわ！"
@@ -232,7 +232,6 @@ end
   end
 
   def garbage_create
-    binding.pry
     @garbage = Garbage.create(garbage_params)
   end
 

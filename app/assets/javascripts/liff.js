@@ -16,21 +16,18 @@ function initializeApp(data) {
     var type_idx = document.getElementById("type_selecter").selectedIndex;
     var g_type = document.getElementById("type_selecter").options[type_idx].text; //種類の取得
 
-      if( wday_idx != 0 && f_nth_idx != 0 && type_idx != 0 && s_nth_idx == 0){ //バリデーション
-          liff.sendMessages([{  //選択した項目をメッセージ送信
-          type: 'text',
-          text: `種類：${g_type} \n週    ：${f_nth} \n曜日：${wday}`
-      }])
-      
-      liff.closeWindow();
+    if(wday != "未選択" && f_nth != "未選択" && g_type != "未選択" && s_nth_idx == "未選択"){ //バリデーション
+        liff.sendMessages([{  //選択した項目をメッセージ送信
+        type: 'text',
+        text: `種類：${g_type} \n週    ：${f_nth} \n曜日：${wday}`
+    }])
+    liff.closeWindow();
     }
-
-    if( wday_idx != 0 && f_nth_idx != 0 && type_idx != 0 && s_nth_idx != 0){ //バリデーション
+    if(wday != "未選択" && f_nth != "未選択" && g_type != "未選択" && s_nth_idx != "未選択"){ //バリデーション
           liff.sendMessages([{  //選択した項目をメッセージ送信
           type: 'text',
           text: `種類：${g_type} \n週    ：${f_nth} \n週    ：${s_nth} \n曜日：${wday}`
       }])
-      
       liff.closeWindow();
     }
   })

@@ -21,18 +21,13 @@ task :garbage_feed => :environment do
     garbages = Garbage.where(user_id: user.id)
     garbages.each do |garbage|
 
-      en_wday_array = ["first","sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+      en_wday_array = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
       en_wday = en_wday_array[garbage.wday.id] #曜日の取得（英語）
-
-      if garbage.first_nth.id.to_i == 5
-        if date.wday == garbage.wday.id.to_i
-          push = "明日は#{garbage.wday.name}やから、 \n#{garbage.garbage_type.name}の日やで\n ちゃんとゴミ捨てるんやで！"
-        end
-      end
-
-      if date == date.nth_week_of_month(garbage.first_nth.id.to_i).day_to(:"#{en_wday}")
+      if garbage.first_nth.id.to_i == 0 && date.wday == garbage.wday.id.to_i #毎週の場合
+        push = "明日は#{garbage.wday.name}やから、 \n#{garbage.garbage_type.name}の日やで\n ちゃんとゴミ捨てるんやで！"
+      elsif date == date.nth_week_of_month(garbage.first_nth.id.to_i).day_to(:"#{en_wday}") #第何週の場合①
         push = "明日は#{garbage.first_nth.name}#{garbage.wday.name}やから、 \n#{garbage.garbage_type.name}の日やで\n ちゃんとゴミ捨てるんやで！"
-      elsif garbage.second_nth_id.length != 0 && date == date.nth_week_of_month(garbage.second_nth.id.to_i).day_to(:"#{en_wday}")
+      elsif garbage.second_nth_id.length != 0 && date == date.nth_week_of_month(garbage.second_nth.id.to_i).day_to(:"#{en_wday}") #第何週の場合②
         push = "明日は#{garbage.second_nth.name}#{garbage.wday.name}やから、 \n#{garbage.garbage_type.name}の日やで\n ちゃんと捨てるんやで！"
       end
       message = {
