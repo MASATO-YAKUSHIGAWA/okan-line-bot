@@ -6,4 +6,5 @@ Rails.application.routes.draw do
   get '/garbage_edit' => 'linebot#garbage_edit', as: "garbage_edit"
   patch '/garbage_update' => 'linebot#garbage_update'
   get '/garbage_delete' => 'linebot#garbage_destroy', as: "garbage_delete"
+  get "/tomorrow_weather" => "weathers#tomorrow"
 end

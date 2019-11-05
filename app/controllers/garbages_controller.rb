@@ -1,0 +1,2 @@
+class GarbagesController < ApplicationController
+end
