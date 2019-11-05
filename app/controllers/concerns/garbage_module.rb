@@ -25,7 +25,7 @@ module Garbages
                             {
                               "type": "uri",
                               "label": "編集する",
-                              "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.first_nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
+                              "uri": ENV['LIFF_EDIT_URL']+"?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.first_nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
                             },
                             {
                               "type": "postback",
@@ -46,7 +46,7 @@ module Garbages
                   {
                     "type": "uri",
                     "label": "編集する",
-                    "uri": "line://app/1607924018-Dagz65o2?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.first_nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
+                    "uri": ENV['LIFF_EDIT_URL']+"?id=#{allgarbage.id}&wday=#{allgarbage.wday.id}&nth=#{allgarbage.first_nth.id}&type=#{allgarbage.garbage_type.id}" #garbageの情報をurlパラメータとしてjsに渡す
                   },
                   {
                     "type": "postback",
@@ -86,7 +86,7 @@ module Garbages
                 {
                   "type": "uri",
                   "label": "登録する",
-                  "uri": "line://app/1607924018-2j0Dpx8j"
+                  "uri": ENV['LIFF_REGISTER_URL']
                 },
             ],
           }
